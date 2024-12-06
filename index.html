@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Click the Object Game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f0f0f0;
+            margin: 0;
+        }
+
+        .game-container {
+            text-align: center;
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        #movingObject {
+            width: 50px;
+            height: 50px;
+            background-color: red;
+            position: absolute;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        #score, #timer {
+            font-size: 24px;
+            margin-top: 10px;
+        }
+
+        #endMessage {
+            display: none;
+            font-size: 28px;
+            margin-top: 20px;
+            color: green;
+        }
+
+        #restartButton {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        #restartButton:hover {
+            background-color: #218838;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="game-container">
+        <h1>Click the Moving Object!</h1>
+        <div id="score">Score: 0</div>
+        <div id="timer">Time: 30</div>
+        <div id="movingObject"></div>
+        <div id="endMessage">Game Over! Your Score: <span id="finalScore"></span></div>
+        <button id="restartButton" style="display: none;">Restart Game</button>
+    </div>
+
+    <script>
+        let score = 0;
+        let timeLeft = 30;
+        let timerInterval;
+        const scoreDisplay = document.getElementById("score");
+        const timerDisplay = document.getElementById("timer");
+        const movingObject = document.getElementById("movingObject");
+        const endMessage = document.getElementById("endMessage");
+        const restartButton = document.getElementById("restartButton");
+        const finalScoreDisplay = document.getElementById("finalScore");
+
+        // Мировой рекорд
+        let worldRecord = localStorage.getItem('worldRecord') || 0;
+
+        // Сохранение мирового рекорда
+        function updateWorldRecord() {
+            if (score > worldRecord) {
+                worldRecord = score;
+                localStorage.setItem('worldRecord', worldRecord);
+            }
+        }
+
+        // Функция для установки случайной позиции объекта
+        function randomPosition() {
+            const maxX = window.innerWidth - 100;
+            const maxY = window.innerHeight - 100;
+            movingObject.style.left = `${Math.random() * maxX}px`;
+            movingObject.style.top = `${Math.random() * maxY}px`;
+        }
+
+        // Начать игру
+        function startGame() {
+            score = 0;
+            timeLeft = 30;
+            scoreDisplay.textContent = `Score: ${score}`;
+            timerDisplay.textContent = `Time: ${timeLeft}`;
+            movingObject.style.display = "block";
+            endMessage.style.display = "none";
+            restartButton.style.display = "none";
+            randomPosition();
+            startTimer();
+        }
+
+        // Таймер
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                timerDisplay.textContent = `Time: ${timeLeft}`;
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    endGame();
+                }
+            }, 1000);
+        }
+
+        // Конец игры
+        function endGame() {
+            movingObject.style.display = "none";
+            endMessage.style.display = "block";
+            finalScoreDisplay.textContent = score;
+            updateWorldRecord();
+            scoreDisplay.textContent = `Your Score: ${score}`;
+            alert(`Game Over! Your Score: ${score}\nWorld Record: ${worldRecord}`);
+            restartButton.style.display = "inline-block";
+        }
+
+        // Обработчик клика по объекту
+        movingObject.addEventListener("click", () => {
+            score++;
+            scoreDisplay.textContent = `Score: ${score}`;
+            randomPosition();
+        });
+
+        // Кнопка перезапуска игры
+        restartButton.addEventListener("click", startGame);
+
+        // Начать игру при загрузке страницы
+        startGame();
+    </script>
+
+</body>
+</html>
